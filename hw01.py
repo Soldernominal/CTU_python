@@ -79,7 +79,7 @@ def orchard_div():
     orchard = [list(map(int, input().split())) for _ in range(N)]
 
     # Or pull from public data
-    # N, orchard = read_pubdata("/home/user/Documents/ALG/hw01/datapub/pub04.in")
+    #N, orchard = read_pubdata("D:\CTU_python\public\pub01.in")
 
     # Failsafe cases
     if N <= 0 or N > 3025: raise ValueError("N(size of orchard) has an invalid size")
@@ -99,7 +99,7 @@ def orchard_div():
             # We find optimal pair of NW and NE...
             NW = prefixsum2D_list[i][j]
             NE = prefixsum2D_list[i][-1] - prefixsum2D_list[i][j]
-            if abs(NW - NE) < optNEW_qdiff:
+            if abs(NW - NE) <= optNEW_qdiff:
                 optNW = NW
                 optNE = NE
                 optNEW_qdiff = abs(NW - NE)
@@ -114,19 +114,22 @@ def orchard_div():
                 optSW = SW
                 optSE = SE
                 optSEW_qdiff = abs(SW - SE)
+            elif abs(SW - SE) == optSEW_qdiff:  # Since we iterate over both N and S, N takes priority and we compare SEW and optSEW for fixed NEW
+                optimal_SNEW = max(optNW, optNE, optSW, optSE) - min(optNW, optNE, optSW, optSE)
+                current_SNEW = max(optNW, optNE, SW, SE) - min(optNW, optNE, SW, SE)
+                if current_SNEW < optimal_SNEW:
+                    optSW = SW
+                    optSE = SE
+                    optSEW_qdiff = abs(SW - SE)
 
         # Find overall maximum quality difference between 4 optimal quadrants for a given row
-        SNEW_qdiff = max(abs(optSW - optSE), abs(optSW - optNW), abs(optSW - optNW),
-                         abs(optNW - optNE), abs(optNW - optSE),
-                         abs(optSE - optNE))
+        SNEW_qdiff = max(optNW, optNE, optSW, optSE) - min(optNW, optNE, optSW, optSE)
 
         # Update optimal value if it is smaller
         optSNEW_qdiff = min(SNEW_qdiff, optSNEW_qdiff)
 
         # Set optimal back to infinity for next row
         optNEW_qdiff, optSEW_qdiff = float('inf'), float('inf')
-
-
 
     return optSNEW_qdiff
 
