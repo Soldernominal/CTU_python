@@ -26,6 +26,9 @@ Limitations:
     1) Node class fully with all necessary methods
     2) Failsafe cases
     3) Think of a solution method
+        - Identify binary tree graph structure
+        - Find method to identify a dangling path
+        - Use recursion(go deep, then return from the bottom iteratively)
 """
 def minmaxcost_dangpath():
 
