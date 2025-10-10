@@ -62,7 +62,8 @@ def minmaxcost_dangpath():
 
     # 2) What the hecc do I do now?
     # IDEA: Look through tuples in neighbours_list, find the same nodes in nodes_dict and pop value from neighbours_list
-
+    # for tuple in neighbours_list: if R in tuple, then we just found the root! That means values next to the root are left/right
+    # which one if left and which one is right is unclear for now
 
     return 0
 
