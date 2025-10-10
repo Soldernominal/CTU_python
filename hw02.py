@@ -129,9 +129,10 @@ def minmaxcost_dangpath():
     except ValueError:
         raise ValueError(f"Invalid form of third input.\nShould be M lines, each with a pair of integers separated by space.")
 
-    print(f"{N} and {R}")
-    print(nodes_dict)
-    print(neighbours_list)
+    # Debugging
+    #print(f"{N} and {R}")
+    #print(nodes_dict)
+    #print(neighbours_list)
 
     # 2) What the hecc do I do now?
     # IDEA: Look through tuples in neighbours_list, find the same nodes in nodes_dict and pop value from neighbours_list
@@ -140,7 +141,8 @@ def minmaxcost_dangpath():
 
     nodechildren_dict = sortnodes_bychildren(R, neighbours_list)
 
-    print(nodechildren_dict)
+    # Debugging
+    #print(nodechildren_dict)
 
 
     # Dict -> node_labl: (child_labl1, child_labl2) or (child_labl)
@@ -159,7 +161,8 @@ def minmaxcost_dangpath():
     # 6)
 
     mindangcost, maxdangcost, f = binary_recursion(R, nodes_dict, nodechildren_dict)
-    return mindangcost, maxdangcost
+
+    return f"{mindangcost} {maxdangcost}"
 
 if __name__ == '__main__':
     print(minmaxcost_dangpath())
