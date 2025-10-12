@@ -23,14 +23,19 @@ Limitations:
 
 # TODO's:
 """
-    Node class fully with all necessary methods
+    1) Node class fully with all necessary methods
+    2) Failsafe cases
+    3) Think of a solution method
+        - Identify binary tree graph structure
+        - Find method to identify a dangling path
+        - Use recursion(go deep, then return from the bottom iteratively)
 """
 
 import time
 
-def sortnodes_bychildren(R: int, adjacency_dict: dict, sorted_dict=None, visited=None) -> dict:
+def sortnodes_bychildren(R: int, neighbours_list: list, sorted_dict=None) -> dict:
     """
-    Given a root(parent) node label and a dictionary of form node: [adjacent_node0, adjacent_node1, ...]
+    Given a root(parent) node label and a list of tuples with 2 neighbouring node labels,
      creates dict of form {node:str : tuple(child1, child2)}
     """
     # Root is needed, to know we are assigning parent -> children, not the other way around
@@ -38,29 +43,32 @@ def sortnodes_bychildren(R: int, adjacency_dict: dict, sorted_dict=None, visited
 
     if sorted_dict is None:
         sorted_dict = {}
-    if visited is None:
-        visited = set()
 
-    visited.add(R)
-    children_list = [n for n in adjacency_dict[R] if n not in visited]
+    children = 0
+    children_list = []
+    # Iterating over a copy, removal works unpredictably otherwise
+    for pair in neighbours_list[:]:
+        if R in pair:
+            neighbours_list.remove(pair)
+            children += 1
+            child = pair[1] if pair[0] == R else pair[0]
+            children_list.append(child)
+            if children == 2: break
+
     sorted_dict[str(R)] = tuple(children_list)
-
-    for child in children_list:
-        sortnodes_bychildren(child, adjacency_dict, sorted_dict, visited)
+    for c in children_list:
+        sortnodes_bychildren(c, neighbours_list, sorted_dict)
 
     return sorted_dict
-
 
 def is_regular(children: tuple) -> bool:
     if len(children) == 1: return False
     return True
 
-
 def binary_recursion(node:int, nodes_dict:dict, nodechildren_dict:dict,
                      optmin_dangscore=float('inf'), optmax_dangscore=float('-inf')) -> tuple:
     """
-    Given dictonary of label:key type and dictionary of parent:tuple(children) type,
-     find min and max cost from all dangling paths using recursion.
+    Given dictonary of label:key type and dictionary of parent:children type, find min and max cost from all dangling paths
     """
     key = nodes_dict[str(node)]
     children = nodechildren_dict[str(node)]
@@ -118,39 +126,33 @@ def minmaxcost_dangpath():
         raise ValueError(f"Invalid form of second input line. Should be N({N}) integer(s) separated by space.")
 
     # M inputs stored into a list of tuples, each with a pair of neighbours:
+    # TODO: Think whether to leave int and use str() everywhere OR use str here and ignore failsafe
     try:
         neighbours_list = [tuple(map(int, input().split())) for _ in range(N-1)]
     except ValueError:
         raise ValueError(f"Invalid form of third input.\nShould be M lines, each with a pair of integers separated by space.")
 
+    starttime = time.time()
 
     # Debugging
-    #starttime = time.time()
-
     #print(f"{N} and {R}")
     #print(nodes_dict)
     #print(neighbours_list)
 
-    # 2) Sort nodes into a dictionaryof form parent: (child1, child2)
-    # Dict -> node_labl: (child_labl1, child_labl2) or (child_labl)
-    # {"7": (6, 8), "6":(2), "2":(1,3), ..., "8":(15), ..., }
+    # 2) What the hecc do I do now?
+    # IDEA: Look through tuples in neighbours_list, find the same nodes in nodes_dict and pop value from neighbours_list
+    # for tuple in neighbours_list: if R in tuple, then we just found the root! That means values next to the root are left/right
+    # which one if left and which one is right is unclear for now
 
-    # Build the adjacency dict first for neighbours of each node
-    adj = {}
-    for nei1, nei2 in neighbours_list:
-        if nei1 not in adj: adj[nei1] = []
-        if nei2 not in adj: adj[nei2] = []
-        adj[nei1].append(nei2)
-        adj[nei2].append(nei1)
-
-    # Sort into the aforementioned dictionary
-    nodechildren_dict = sortnodes_bychildren(R, adj, sorted_dict=None, visited=None)
+    # TODO: This method is a big time-waster, I must make it more optimal
+    nodechildren_dict = sortnodes_bychildren(R, neighbours_list)
 
     # Debugging
     #print(nodechildren_dict)
 
 
-
+    # Dict -> node_labl: (child_labl1, child_labl2) or (child_labl)
+    # {"7": (6, 8), "6":(2), "2":(1,3), ..., "8":(15), ..., }
     # BETTER IDEA: Go deep, until leaf. If self.is_leaf(): return key of this leaf and go up by recursion.
     # Return sum of all keys(values) from leaf up, and if not node.is_Regular() stop summing and add final result to some list.
     # E.G.:
@@ -162,14 +164,12 @@ def minmaxcost_dangpath():
     #       value either to list all_danglpath_costs OR just
     #       min(optmin_dangscore, value) AND max(value, optmax_dangscore),
     #       which at the start should be set to optmin_dangscore = float('inf') and optmax_dangscore = float('-inf')
+    # 6)
 
     mindangcost, maxdangcost, f = binary_recursion(R, nodes_dict, nodechildren_dict)
 
-    # Debugging to show implementation time
-    #finishtime = time.time()
-    #print(f"Final time: {finishtime - starttime:4f}s.")
-
-    return f"{mindangcost} {maxdangcost}"
+    finishtime = time.time()
+    return f"{mindangcost} {maxdangcost} and it took {finishtime - starttime:.4f}s"
 
 if __name__ == '__main__':
     print(minmaxcost_dangpath())
